@@ -38,6 +38,9 @@ const responseChunks = (res) => {
             });
         }
         chunks.pending = false;
+        resolver?.({
+                done:true
+        });
         return chunks;
     })();
     return chunks;
