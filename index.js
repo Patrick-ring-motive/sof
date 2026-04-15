@@ -25,7 +25,7 @@ const responseChunks = (res) => {
         } catch (e) {
             chunks.error = e;
         }
-        pending = false;
+        chunks.pending = false;
         return chunks;
     })();
     return chunks;
