@@ -18,12 +18,24 @@ const responseChunks = (res) => {
     chunks.stream = res?.clone?.()?.body;
     chunks.pending = true;
     chunks.done = (async () => {
+        let resolver;
+        chunks.next = new Promise(resolve=>{
+            resolver = resolve;
+        });
         try {
             for await (const chunk of chunks.stream) {
                 chunks.push(chunk);
+                resolver(chunk);
+                chunks.next = new Promise(resolve=>{
+                    resolver = resolve;
+                });
             }
         } catch (e) {
             chunks.error = e;
+            resolver?.({
+                done:true,
+                value:e
+            });
         }
         chunks.pending = false;
         return chunks;
