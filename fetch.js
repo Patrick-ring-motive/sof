@@ -6,6 +6,28 @@ const Q = fn => {
 
   const isNullish = x => x === null || x === undefined;
 
+const newResponse = (...args)=>{
+    try{
+        return new Response(...args);
+    }catch(e){
+        console.warn(e, ...args);
+        return new Response(String(e),{status:500,statusText:String(e)});
+    }
+};
+
+ const makeResponse = (...args)=> {
+      try {
+        if (/^(101|204|205|304)$/.test(args?.[1]?.status)) {
+          console.warn('Trying to give a body to incompatible response code 101|204|205|304; body ignored');
+          (args ?? [])[0] = null;
+          delete(args ?? [])[1].body;
+        }
+        return newResponse(...args);
+      } catch (e) {
+        console.warn(e, ...args);
+        return newResponse(String(e),{status:500,statusText:String(e)});
+      }
+    };
   async function bestEffortResponse(response) {
     try {
       const originalResponse = response;
@@ -40,13 +62,13 @@ const Q = fn => {
           Q(() => originalReader.cancel(reason).catch(() => {}));
         },
       });
-      return new Response(resilientStream, {
+      return newResponse(resilientStream, {
         status: originalResponse.status,
         statusText: originalResponse.statusText,
         headers: originalResponse.headers,
       });
     } catch (e) {
-      return new Response(String(e), {
+      return newResponse(String(e), {
         status: 500,
         statusText: String(e)
       });
@@ -58,7 +80,7 @@ const Q = fn => {
       const originalResponse = await fetch(input, init);
       return await bestEffortResponse(originalResponse);
     } catch (e) {
-      return new Response(String(e), {
+      return newResponse(String(e), {
         status: 500,
         statusText: String(e)
       });
@@ -101,7 +123,7 @@ const Q = fn => {
     try {
       return await bestEffortFetch(...args);
     } catch (e) {
-      return new Response(String(e), {
+      return newResponse(String(e), {
         status: 500,
         statusText: String(e)
       });
