@@ -18,6 +18,20 @@ const newResponse = (...args) => {
   }
 };
 
+const newRequest = (...args) => {
+  try {
+    return new Request(...args);
+  } catch (e) {
+    console.warn(e, ...args);
+    return new Request('about:request-error', {
+      headers:{
+        status:'400',
+        'status-text':String(e).replaceAll(/[^a-zA-Z0-9]/g,' ')
+      }
+    });
+  }
+};
+
 const makeResponse = (...args) => {
   try {
     if (/^(101|204|205|304)$/.test(args?.[1]?.status)) {
