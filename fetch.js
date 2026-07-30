@@ -24,9 +24,9 @@ const newRequest = (...args) => {
   } catch (e) {
     console.warn(e, ...args);
     return new Request('about:request-error', {
-      headers:{
-        status:'400',
-        'status-text':String(e).replaceAll(/[^a-zA-Z0-9]/g,' ')
+      headers: {
+        status: '400',
+        'status-text': String(e).replaceAll(/[^a-zA-Z0-9]/g, ' ')
       }
     });
   }
